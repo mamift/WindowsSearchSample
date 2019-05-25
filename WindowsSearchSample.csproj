@@ -51,9 +51,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Microsoft.Search.Interop.dll" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="WindowsSearchLib\WindowsSearchLib.csproj">
       <Project>{f32a1231-abc1-4986-b4da-915e4c349395}</Project>
       <Name>WindowsSearchLib</Name>

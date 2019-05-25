@@ -8,7 +8,15 @@ namespace WindowsSearch
 {
     public static class Search
     {
-        public static void PerformSearch(string libPath, string query)
+        /// <summary>
+        /// Performs a full-text search against the Windows Search Index, by a given file system <paramref name="path"/>
+        /// and <paramref name="query"/>. This generates an SQL query that is passed to the Windows Search query processor.
+        /// <para>If you know in advance the SQL query you want to pass, use <see cref="PerformQuery"/>.</para>
+        /// </summary>
+        /// <param name="path">A path in the local file system.</param>
+        /// <param name="query">Any full-text search string or search operators accepted by the Windows Search query engine.</param>
+        /// <param name="progress">Optionally provide an <see cref="IProgress{T}"/> object to view progress output.</param>
+        public static void PerformSearch(string path, string query, IProgress<string> progress = null)
         {
             string sqlQuery;
             CSearchManager srchMgr = null;
@@ -37,15 +45,23 @@ namespace WindowsSearch
                 }
             }
 
-            Console.Error.WriteLine(sqlQuery);
-            Console.Error.WriteLine();
+            progress?.Report($"Full query: {sqlQuery}");
 
-            PerformQuery(libPath, sqlQuery);
+            PerformQuery(path, sqlQuery);
         }
 
-        public static void PerformQuery(string libPath, string sqlQuery, bool sSilent = false)
+        /// <summary>
+        /// Performs a full-text search against the Windows Search Index, by a given file system <paramref name="path"/>
+        /// and <paramref name="sqlQuery"/> string. 
+        /// </summary>
+        /// <param name="path">A path in the local file system.</param>
+        /// <param name="sqlQuery">Valid SQL query.</param>
+        /// <param name="silentOutput">Suppress output. If an <see cref="IProgress{T}"/> object is provided, no output is given.</param>
+        /// <param name="progress">Optionally provide an <see cref="IProgress{T}"/> object to view progress output.</param>
+        public static void PerformQuery(string path, string sqlQuery, bool silentOutput = false, 
+            IProgress<string> progress = null)
         {
-            using (var session = new WindowsSearchSession(libPath)) {
+            using (var session = new WindowsSearchSession(path)) {
                 var startTicks = Environment.TickCount;
                 var ticksToFirstRead = 0;
                 using (var reader = session.Query(sqlQuery)) {
@@ -55,17 +71,11 @@ namespace WindowsSearch
                         ticksToFirstRead = Environment.TickCount - startTicks;
                     }
 
-                    int rowCount;
-                    if (!sSilent) {
-                        rowCount = reader.WriteRowsToCsv(Console.Out);
-                    }
-                    else {
-                        rowCount = SilentlyReadAllRows(reader);
-                    }
+                    var rowCount = silentOutput ? SilentlyReadAllRows(reader) : reader.WriteRowsToCsv(Console.Out);
 
-                    Console.Error.WriteLine();
-                    Console.Error.WriteLine("{0} rows.", rowCount);
-                    Debug.WriteLine("{0} rows.", rowCount);
+                    var output = $"{rowCount} rows.";
+                    progress?.Report(output);
+                    Debug.WriteLine(output);
                 }
 
                 int elapsedTicks;
@@ -73,15 +83,20 @@ namespace WindowsSearch
                     elapsedTicks = Environment.TickCount - startTicks;
                 }
 
-                Console.Error.WriteLine($"{ticksToFirstRead / 1000:d}.{ticksToFirstRead % 1000:d3} until first read.");
+                progress?.Report($"{ticksToFirstRead / 1000:d}.{ticksToFirstRead % 1000:d3} until first read.");
                 Debug.WriteLine($"{ticksToFirstRead / 1000:d}.{ticksToFirstRead % 1000:d3} until first read.");
 
-                Console.Error.WriteLine($"{elapsedTicks / 1000:d}.{elapsedTicks % 1000:d3} seconds elapsed.");
+                progress?.Report($"{elapsedTicks / 1000:d}.{elapsedTicks % 1000:d3} seconds elapsed.");
                 Debug.WriteLine($"{elapsedTicks / 1000:d}.{elapsedTicks % 1000:d3} seconds elapsed.");
             }
         }
 
-        public static int SilentlyReadAllRows(OleDbDataReader reader)
+        /// <summary>
+        /// Reads rows from an <see cref="OleDbDataReader"/> and return the row count.
+        /// </summary>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private static int SilentlyReadAllRows(OleDbDataReader reader)
         {
             var rowCount = 0;
             while (reader.Read()) {
