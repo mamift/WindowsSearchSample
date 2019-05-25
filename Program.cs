@@ -1,16 +1,10 @@
 ﻿using System;
 using System.IO;
 using WindowsSearch;
-using Microsoft.Search.Interop;
-using System.Runtime.InteropServices;
-using System.Diagnostics;
-using WinShell;
-using System.Collections.Generic;
-using System.Text;
 
 namespace WindowsSearchSample
 {
-    class Program
+    public static class Program
     {
         const string c_syntax =
 @"Syntax:
@@ -90,11 +84,11 @@ Options:
                 }
                 else if (winSearch != null)
                 {
-                    PerformSearch(libraryPath, winSearch);
+                    Search.PerformSearch(libraryPath, winSearch);
                 }
                 else if (sqlQuery != null)
                 {
-                    PerformQuery(libraryPath, sqlQuery);
+                    Search.PerformQuery(libraryPath, sqlQuery, s_silent);
                 }
                 else
                 {
@@ -120,95 +114,6 @@ Options:
                 Console.Error.Write("Press any key to exit.");
                 Console.ReadKey(true);
             }
-        }
-
-        static void PerformSearch(string libPath, string query)
-        {
-            string sqlQuery;
-            CSearchManager srchMgr = null;
-            CSearchCatalogManager srchCatMgr = null;
-            CSearchQueryHelper queryHelper = null;
-            try
-            {
-                srchMgr = new CSearchManager();
-                srchCatMgr = srchMgr.GetCatalog("SystemIndex");
-                queryHelper = srchCatMgr.GetQueryHelper();
-                sqlQuery = queryHelper.GenerateSQLFromUserQuery(query);
-            }
-            finally
-            {
-                if (queryHelper != null)
-                {
-                    Marshal.FinalReleaseComObject(queryHelper);
-                    queryHelper = null;
-                }
-                if (srchCatMgr != null)
-                {
-                    Marshal.FinalReleaseComObject(srchCatMgr);
-                    srchCatMgr = null;
-                }
-                if (srchMgr != null)
-                {
-                    Marshal.FinalReleaseComObject(srchMgr);
-                    srchMgr = null;
-                }
-            }
-
-            Console.Error.WriteLine(sqlQuery);
-            Console.Error.WriteLine();
-
-            PerformQuery(libPath, sqlQuery);
-        }
-
-        static void PerformQuery(string libPath, string sqlQuery)
-        {
-            using (WindowsSearchSession session = new WindowsSearchSession(libPath))
-            {
-                var startTicks = Environment.TickCount;
-                int ticksToFirstRead = 0;
-                using (var reader = session.Query(sqlQuery))
-                {
-                    reader.WriteColumnNamesToCsv(Console.Out);
-                    // Need unchecked because tickcount can wrap around - nevertheless it still generates a valid result
-                    unchecked { ticksToFirstRead = Environment.TickCount - startTicks; }
-                    int rowCount;
-                    if (!s_silent)
-                    {
-                        rowCount = reader.WriteRowsToCsv(Console.Out);
-                    }
-                    else
-                    {
-                        rowCount = SilentlyReadAllRows(reader);
-                    }
-
-                    Console.Error.WriteLine();
-                    Console.Error.WriteLine("{0} rows.", rowCount);
-                    Debug.WriteLine("{0} rows.", rowCount);
-                }
-
-                int elapsedTicks;
-                unchecked { elapsedTicks = Environment.TickCount - startTicks; }
-
-                Console.Error.WriteLine($"{ticksToFirstRead / 1000:d}.{ticksToFirstRead % 1000:d3} until first read.");
-                Debug.WriteLine($"{ticksToFirstRead / 1000:d}.{ticksToFirstRead % 1000:d3} until first read.");
-
-                Console.Error.WriteLine($"{elapsedTicks / 1000:d}.{elapsedTicks % 1000:d3} seconds elapsed.");
-                Debug.WriteLine($"{elapsedTicks / 1000:d}.{elapsedTicks % 1000:d3} seconds elapsed.");
-            }
-
-        }
-
-        static int SilentlyReadAllRows(System.Data.OleDb.OleDbDataReader reader)
-        {
-            int rowCount = 0;
-            while (reader.Read())
-            {
-                ++rowCount;
-                object[] values = new object[reader.FieldCount];
-                reader.GetValues(values);
-            }
-
-            return rowCount;
         }
     }
 }

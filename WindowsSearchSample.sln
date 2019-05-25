@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 14 for Windows Desktop
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsSearchSample", "WindowsSearchSample.csproj", "{A4B152F7-CF82-4C73-B542-B9199F4A7DBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsSearchLib", ".\WindowsSearchLib\WindowsSearchLib.csproj", "{F32A1231-ABC1-4986-B4DA-915E4C349395}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,8 +17,15 @@ Global
 		{A4B152F7-CF82-4C73-B542-B9199F4A7DBC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A4B152F7-CF82-4C73-B542-B9199F4A7DBC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A4B152F7-CF82-4C73-B542-B9199F4A7DBC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F32A1231-ABC1-4986-B4DA-915E4C349395}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F32A1231-ABC1-4986-B4DA-915E4C349395}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F32A1231-ABC1-4986-B4DA-915E4C349395}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F32A1231-ABC1-4986-B4DA-915E4C349395}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4AB47B63-6CC3-4897-88E2-B93AEEF35179}
 	EndGlobalSection
 EndGlobal

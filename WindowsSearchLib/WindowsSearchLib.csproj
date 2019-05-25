@@ -1,20 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A4B152F7-CF82-4C73-B542-B9199F4A7DBC}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{F32A1231-ABC1-4986-B4DA-915E4C349395}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WindowsSearchSample</RootNamespace>
-    <AssemblyName>WindowsSearchSample</AssemblyName>
+    <RootNamespace>WindowsSearch</RootNamespace>
+    <AssemblyName>WindowsSearchLib</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -24,7 +23,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Search.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=9f748985a6e9a7cb, processorArchitecture=MSIL">
+      <HintPath>..\packages\tlbimp-Microsoft.Search.Interop.1.0.0\lib\net45\Microsoft.Search.Interop.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,28 +45,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleHelper.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Search.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Shell\NativeMethods.cs" />
+    <Compile Include="Shell\PropertyDescription.cs" />
+    <Compile Include="Shell\PropertySystem.cs" />
+    <Compile Include="Shell\PropVariant.cs" />
+    <Compile Include="WindowsSearchSession.cs" />
+    <Compile Include="WindowsSearchHelpExtensions.cs" />
+    <Compile Include="Shell\WinShell.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Microsoft.Search.Interop.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="WindowsSearchLib\WindowsSearchLib.csproj">
-      <Project>{f32a1231-abc1-4986-b4da-915e4c349395}</Project>
-      <Name>WindowsSearchLib</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
