@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Microsoft.Search.Interop;
 using System.Data.OleDb;
+using System.Linq;
 
 namespace WindowsSearch
 {
+    /// <summary>
+    /// Static class that serves as main entry point for this library.
+    /// <para>Call <see cref="PerformSearch"/> to do a full-text search using keywords.</para>
+    /// <para>Call <see cref="PerformQuery"/> to do a search using Windows Search SQL.</para>
+    /// </summary>
     public static class Search
     {
         /// <summary>
@@ -16,7 +23,7 @@ namespace WindowsSearch
         /// <param name="path">A path in the local file system.</param>
         /// <param name="query">Any full-text search string or search operators accepted by the Windows Search query engine.</param>
         /// <param name="progress">Optionally provide an <see cref="IProgress{T}"/> object to view progress output.</param>
-        public static void PerformSearch(string path, string query, IProgress<string> progress = null)
+        public static List<SearchResult> PerformSearch(string path, string query, IProgress<string> progress = null)
         {
             string sqlQuery;
             CSearchManager srchMgr = null;
@@ -47,7 +54,7 @@ namespace WindowsSearch
 
             progress?.Report($"Full query: {sqlQuery}");
 
-            PerformQuery(path, sqlQuery);
+            return PerformQuery(path, sqlQuery, progress);
         }
 
         /// <summary>
@@ -56,24 +63,23 @@ namespace WindowsSearch
         /// </summary>
         /// <param name="path">A path in the local file system.</param>
         /// <param name="sqlQuery">Valid SQL query.</param>
-        /// <param name="silentOutput">Suppress output. If an <see cref="IProgress{T}"/> object is provided, no output is given.</param>
         /// <param name="progress">Optionally provide an <see cref="IProgress{T}"/> object to view progress output.</param>
-        public static void PerformQuery(string path, string sqlQuery, bool silentOutput = false, 
-            IProgress<string> progress = null)
+        public static List<SearchResult> PerformQuery(string path, string sqlQuery, IProgress<string> progress = null)
         {
             using (var session = new WindowsSearchSession(path)) {
                 var startTicks = Environment.TickCount;
                 var ticksToFirstRead = 0;
+                List<SearchResult> rows;
                 using (var reader = session.Query(sqlQuery)) {
-                    reader.WriteColumnNamesToCsv(Console.Out);
+                    //reader.WriteColumnNamesToCsv(Console.Out);
                     // Need unchecked because tickcount can wrap around - nevertheless it still generates a valid result
                     unchecked {
                         ticksToFirstRead = Environment.TickCount - startTicks;
                     }
 
-                    var rowCount = silentOutput ? SilentlyReadAllRows(reader) : reader.WriteRowsToCsv(Console.Out);
+                    rows = reader.OutputRowsToSearchResults();
 
-                    var output = $"{rowCount} rows.";
+                    var output = $"{rows.Count} rows.";
                     progress?.Report(output);
                     Debug.WriteLine(output);
                 }
@@ -88,6 +94,8 @@ namespace WindowsSearch
 
                 progress?.Report($"{elapsedTicks / 1000:d}.{elapsedTicks % 1000:d3} seconds elapsed.");
                 Debug.WriteLine($"{elapsedTicks / 1000:d}.{elapsedTicks % 1000:d3} seconds elapsed.");
+
+                return rows;
             }
         }
 

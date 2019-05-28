@@ -1,5 +1,8 @@
-﻿using System.Data.OleDb;
+﻿using System.Collections.Generic;
+using System.Data.OleDb;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace WindowsSearch
 {
@@ -53,6 +56,27 @@ namespace WindowsSearch
 
             reader.Close();
             return rowCount;
+        }
+
+        public static List<SearchResult> OutputRowsToSearchResults(this OleDbDataReader reader)
+        {
+            var results = new List<SearchResult>();
+
+            var rows = 0;
+            while (reader.Read()) {
+                ++rows;
+
+                var values = new object[reader.FieldCount];
+                reader.GetValues(values);
+
+                var rowSet = values.Cast<string>().Select(s => new SearchResult(s, null));
+                results.AddRange(rowSet);
+            }
+
+            Debug.WriteLine($"{rows} rows read.");
+
+            reader.Close();
+            return results;
         }
     }
 }

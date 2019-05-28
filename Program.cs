@@ -84,11 +84,16 @@ Options:
                 }
                 else if (winSearch != null)
                 {
-                    Search.PerformSearch(libraryPath, winSearch);
+                    var results = Search.PerformSearch(libraryPath, winSearch);
+
+                    foreach (var result in results)
+                        Console.WriteLine($"{result.FilePath}");
                 }
                 else if (sqlQuery != null)
                 {
-                    Search.PerformQuery(libraryPath, sqlQuery, s_silent);
+                    var results = Search.PerformQuery(libraryPath, sqlQuery);
+                    foreach (var result in results)
+                        Console.WriteLine($"{result.FilePath}");
                 }
                 else
                 {

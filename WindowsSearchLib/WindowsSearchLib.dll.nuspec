@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/mamift/WindowsSearchSample</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>A C# .NET Framework 4.8 library that exposes a few convenience APIs for programmatically querying the Windows Search Index. Works with Windows 7 search or later. This is based on the WindowsSearchSample (https://github.com/FileMeta/WindowsSearchSample).</description>
-    <releaseNotes>This particular release is not .NET Core (1 or 2) compatible.</releaseNotes>
+    <releaseNotes>This library is only .NET Framework (as in Windows-only) compatible.</releaseNotes>
     <copyright>Copyright 2019 mamift</copyright>
     <tags>windows search interop c#</tags>
     <dependencies>
